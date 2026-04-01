@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="ja" class="season-spring">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>いぬそだて 🐾</title>
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  height: 100vh; overflow: hidden;
+  font-family: 'Hiragino Sans','Yu Gothic UI','Segoe UI',sans-serif;
+  display: flex; flex-direction: column;
+  min-width: 860px;
+}
+
+/* ═══════════════════════════════════════════
+   GARDEN BACKGROUND
+   ═══════════════════════════════════════════ */
+.garden {
+  position: fixed; inset: 0; z-index: 0;
+  overflow: hidden; pointer-events: none;
+  transition: background 4s ease;
+}
+html.season-spring .garden { background: linear-gradient(180deg,#87CEEB 0%,#B8E8FF 45%,#C8EDA0 75%,#88BB44 100%); }
+html.season-summer .garden { background: linear-gradient(180deg,#1565C0 0%,#42A5F5 45%,#66BB44 75%,#338822 100%); }
+html.season-autumn .garden { background: linear-gradient(180deg,#6B2800 0%,#CC5500 40%,#E88820 65%,#AA7730 100%); }
+html.season-winter .garden { background: linear-gradient(180deg,#3A5068 0%,#78909C 45%,#C8D8E8 75%,#E8EFF8 100%); }
+
+.g-sun {
+  position:absolute; top:7%; right:13%;
+  width:58px; height:58px; border-radius:50%;
+  transition: all 3s ease;
+}
+html.season-spring .g-sun { background:#FFE57F; box-shadow:0 0 28px #FFD740,0 0 60px rgba(255,215,64,.35); }
+html.season-summer .g-sun { background:#FFD600; box-shadow:0 0 42px #FFD600,0 0 90px rgba(255,214,0,.5); width:72px; height:72px; top:5%; }
+html.season-autumn .g-sun { background:#FF9800; box-shadow:0 0 22px rgba(255,152,0,.5); width:46px; height:46px; top:13%; }
+html.season-winter .g-sun { background:#C8D4DC; box-shadow:0 0 18px rgba(200,210,220,.5); width:42px; height:42px; }
+
+.g-cloud { position:absolute; border-radius:50px; transition: background 3s ease, opacity 3s ease; }
+.g-cloud::before,.g-cloud::after { content:''; position:absolute; border-radius:50%; }
+html.season-spring .g-cloud, html.season-summer .g-cloud { background:rgba(255,255,255,.88); }
+html.season-autumn .g-cloud { background:rgba(195,175,155,.75); }
+html.season-winter .g-cloud { background:rgba(195,215,235,.85); }
+.g-cloud-1 { top:11%; left:8%; width:90px; height:27px; }
+.g-cloud-1::before { width:52px; height:46px; top:-28px; left:10px; background:inherit; }
+.g-cloud-1::after  { width:36px; height:38px; top:-22px; left:42px; background:inherit; }
+.g-cloud-2 { top:16%; left:32%; width:68px; height:21px; }
+.g-cloud-2::before { width:38px; height:36px; top:-20px; left:8px; background:inherit; }
+.g-cloud-2::after  { width:26px; height:28px; top:-14px; left:30px; background:inherit; }
+.g-cloud-3 { top:9%; right:30%; width:80px; height:24px; }
+.g-cloud-3::before { width:44px; height:40px; top:-24px; left:10px; background:inherit; }
+.g-cloud-3::after  { width:30px; height:32px; top:-16px; left:38px; background:inherit; }
+
+.g-tree { position:absolute; bottom:0; }
+.g-tree::before { content:''; position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:14px; height:50px; border-radius:4px; transition:background 3s ease; }
+.g-tree::after  { content:''; position:absolute; bottom:44px; left:50%; transform:translateX(-50%); border-radius:50% 50% 45% 45%; transition:background 3s ease,width 3s ease,height 3s ease; }
+html.season-spring .g-tree::before { background:#6B4423; }
+html.season-summer .g-tree::before { background:#5A3A1A; }
+html.season-autumn .g-tree::before { background:#7A5030; }
+html.season-winter .g-tree::before { background:#7A7878; }
+html.season-spring .g-tree::after  { background:#7DC855; width:54px; height:64px; }
+html.season-summer .g-tree::after  { background:#2E8B2E; width:60px; height:74px; }
+html.season-autumn .g-tree::after  { background:#CC5500; width:56px; height:66px; }
+html.season-winter .g-tree::after  { background:#A8B8C8; width:48px; height:54px; }
+.g-tree-1 { left:4%;  height:110px; }
+.g-tree-2 { left:18%; height:90px; }
+.g-tree-2::after { width:44px !important; height:54px !important; }
+.g-tree-3 { right:20%; height:100px; }
+.g-tree-4 { right:6%; height:118px; }
+
+.g-ground { position:absolute; bottom:0; left:0; right:0; height:18%; transition:background 3s ease; }
+html.season-spring .g-ground { background:linear-gradient(180deg,#88BB44,#557722); }
+html.season-summer .g-ground { background:linear-gradient(180deg,#449930,#2A6618); }
+html.season-autumn .g-ground { background:linear-gradient(180deg,#AA7730,#7A5520); }
+html.season-winter .g-ground { background:linear-gradient(180deg,#D8E8F4,#A8B8CC); }
+
+.g-flower-row { position:absolute; bottom:17%; left:0; right:0; display:flex; justify-content:space-around; padding:0 6%; font-size:17px; line-height:1; pointer-events:none; transition:opacity 1s ease; }
+.g-particles { position:absolute; inset:0; pointer-events:none; }
+.g-season-label { position:absolute; top:48px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,.25); color:#fff; font-size:13px; font-weight:700; padding:4px 14px; border-radius:20px; opacity:0; transition:opacity .5s ease; pointer-events:none; }
+
+/* ═══════════════════════════════════════════
+   TITLE BAR
+   ═══════════════════════════════════════════ */
+.title-bar {
+  position: relative; z-index: 50;
+  height: 42px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 52px;
+}
+.game-title {
+  font-size: 20px; font-weight: 900;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0,0,0,.45), 0 0 30px rgba(255,255,255,.2);
+  letter-spacing: .5px;
+}
+.pause-btn {
+  position: absolute; right: 12px;
+  background: rgba(255,255,255,.22);
+  border: 1px solid rgba(255,255,255,.5);
+  border-radius: 9px; padding: 4px 12px;
+  font-size: 15px; font-weight: 700;
+  cursor: pointer; color: #fff;
+  backdrop-filter: blur(6px);
+  transition: background .15s ease;
+  letter-spacing: .3px;
+}
+.pause-btn:hover { background: rgba(255,255,255,.38); }
+
+/* ═══════════════════════════════════════════
+   MAIN LAYOUT
+   ═══════════════════════════════════════════ */
+.layout {
+  position: relative; z-index: 1;
+  flex: 1; min-height: 0;
+  display: flex; padding: 0 10px 10px; gap: 10px;
+}
+
+/* ─── Left: Photo Album ─── */
+.album-panel {
+  width: 205px; flex-shrink: 0;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.album-title {
+  font-size: 12px; font-weight: 700;
+  color: rgba(255,255,255,.95);
+  text-shadow: 0 1px 3px rgba(0,0,0,.4);
+  text-align: center;
+  background: rgba(0,0,0,.18); backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 8px; padding: 5px 0;
+}
+.photo-strip {
+  flex: 1; display: flex; flex-direction: column; gap: 5px;
+  overflow-y: auto; padding-right: 1px;
+}
+.photo-strip::-webkit-scrollbar { width: 3px; }
+.photo-strip::-webkit-scrollbar-thumb { background: rgba(255,255,255,.3); border-radius: 2px; }
+.album-hint { color: rgba(255,255,255,.7); font-size: 11px; text-align: center; margin-top: 20px; text-shadow: 0 1px 2px rgba(0,0,0,.3); line-height: 1.6; }
+
+/* Photo Card */
+.photo-card {
+  background: #fff; border-radius: 5px;
+  padding: 5px 5px 22px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.25),0 1px 3px rgba(0,0,0,.1);
+  transform: rotate(var(--rot,0deg));
+  position: relative;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.photo-card:hover { transform: rotate(0deg) scale(1.03); box-shadow: 0 8px 24px rgba(0,0,0,.3); z-index: 10; }
+.photo-viewport {
+  width: 190px; height: 90px;
+  overflow: hidden; position: relative; border-radius: 2px;
+}
+.photo-viewport.season-spring { background: linear-gradient(180deg,#a0d8f0,#c4eaa0); }
+.photo-viewport.season-summer { background: linear-gradient(180deg,#4da6e8,#5cb85c); }
+.photo-viewport.season-autumn { background: linear-gradient(180deg,#e09040,#c89030); }
+.photo-viewport.season-winter { background: linear-gradient(180deg,#b0c8e0,#d8e8f6); }
+.photo-bg { position: absolute; inset: 0; }
+.photo-sun { position: absolute; top:5px; right:10px; width:14px; height:14px; border-radius:50%; }
+.photo-viewport.season-spring .photo-sun { background:#ffe066; box-shadow:0 0 5px #ffd740; }
+.photo-viewport.season-summer .photo-sun { background:#ffd600; box-shadow:0 0 7px #ffd600; width:18px; height:18px; }
+.photo-viewport.season-autumn .photo-sun { background:#ff9800; }
+.photo-viewport.season-winter .photo-sun { background:#c8d8e8; }
+.photo-cloud { position:absolute; top:7px; left:8px; width:26px; height:9px; border-radius:8px; background:rgba(255,255,255,.82); }
+.photo-cloud::before { content:''; position:absolute; top:-6px; left:5px; width:14px; height:13px; background:rgba(255,255,255,.82); border-radius:50%; }
+.photo-viewport.season-winter .photo-cloud,
+.photo-viewport.season-winter .photo-cloud::before { background:rgba(210,225,240,.85); }
+.photo-tree { position:absolute; bottom:12px; }
+.photo-tree-l { left:5px; } .photo-tree-r { right:5px; }
+.photo-tree::before { content:''; position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:4px; height:11px; background:#7a5230; border-radius:2px; }
+.photo-tree::after  { content:''; position:absolute; bottom:9px; left:50%; transform:translateX(-50%); width:18px; height:20px; border-radius:50% 50% 42% 42%; }
+.photo-viewport.season-spring .photo-tree::after { background:#88cc66; }
+.photo-viewport.season-summer .photo-tree::after { background:#2e8b2e; }
+.photo-viewport.season-autumn .photo-tree::after { background:#cc5500; }
+.photo-viewport.season-winter .photo-tree::after { background:#a8b8c8; }
+.photo-ground { position:absolute; bottom:0; left:0; right:0; height:14px; border-radius:3px 3px 0 0; }
+.photo-viewport.season-spring .photo-ground { background:#7ac55a; }
+.photo-viewport.season-summer .photo-ground { background:#449930; }
+.photo-viewport.season-autumn .photo-ground { background:#b88030; }
+.photo-viewport.season-winter .photo-ground { background:#d0e0f0; }
+.photo-dog-wrap { position:absolute; top:0; left:0; width:380px; height:180px; transform:scale(0.5); transform-origin:top left; display:flex; align-items:center; justify-content:center; pointer-events:none; z-index:2; }
+.photo-dog-wrap .pet { transform: none !important; }
+.photo-caption { position:absolute; bottom:3px; left:0; right:0; text-align:center; }
+.photo-stage-name { font-size:10px; font-weight:700; color:#555; }
+.photo-info { font-size:9px; color:#888; }
+@keyframes snapFlash { 0% { box-shadow:0 0 0 0 rgba(255,255,200,.9); } 50% { box-shadow:0 0 20px 10px rgba(255,255,200,.5); } 100% { box-shadow:0 0 0 0 rgba(255,255,200,0); } }
+.new-snap { animation: snapFlash .7s ease-out; }
+
+/* ─── Center: Game Panel ─── */
+.game-panel {
+  flex: 1; min-width: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.game-card {
+  background: rgba(255,255,255,.15); backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,.4); border-radius: 22px;
+  padding: 14px 18px 16px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.18);
+  min-width: 220px;
+  position: relative;
+}
+.game-card.paused .pet-area::after {
+  content: '⏸ 一時停止中';
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.35); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 14px; font-weight: 700;
+  letter-spacing: .5px;
+}
+.season-badge { font-size:12px; font-weight:700; background:rgba(255,255,255,.45); border-radius:12px; padding:3px 12px; color:#333; }
+.pet-area { width:160px; height:175px; display:flex; align-items:center; justify-content:center; position:relative; }
+.pet-name-row { display:flex; flex-direction:column; align-items:center; gap:4px; }
+.pet-name { font-size:17px; font-weight:800; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.4); }
+.pet-stage-badge { font-size:11px; background:rgba(255,255,255,.45); border-radius:10px; padding:2px 10px; color:#333; }
+.day-info { font-size:10px; color:rgba(255,255,255,.8); }
+.hearts { display:flex; gap:3px; font-size:14px; }
+
+/* ─── Right: Controls Panel ─── */
+.controls-panel {
+  width: 238px; flex-shrink: 0;
+  background: rgba(255,255,255,.15); backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,.4); border-radius: 16px;
+  padding: 10px 12px;
+  display: flex; flex-direction: column; gap: 8px;
+  overflow-y: auto;
+}
+.controls-panel::-webkit-scrollbar { width: 3px; }
+.controls-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,.3); border-radius: 2px; }
+.section-title { font-size:10px; font-weight:700; letter-spacing:.6px; color:rgba(255,255,255,.7); text-transform:uppercase; margin-bottom:2px; }
+.stat-row { display:flex; align-items:center; gap:6px; margin-bottom:3px; }
+.stat-label { font-size:11px; width:52px; flex-shrink:0; color:rgba(255,255,255,.9); text-shadow:0 1px 2px rgba(0,0,0,.3); }
+.stat-bar { flex:1; height:8px; background:rgba(255,255,255,.25); border-radius:4px; overflow:hidden; }
+.stat-fill { height:100%; border-radius:4px; transition:width .5s ease; }
+.s-hunger { background:linear-gradient(90deg,#ff9a3c,#ff6622); }
+.s-happy  { background:linear-gradient(90deg,#ff6b9d,#e040a8); }
+.s-clean  { background:linear-gradient(90deg,#4dd9f5,#00b8d4); }
+.s-energy { background:linear-gradient(90deg,#a8edaf,#44bb55); }
+.stat-val { font-size:10px; color:rgba(255,255,255,.8); width:26px; text-align:right; }
+.actions-grid { display:grid; grid-template-columns:1fr 1fr; gap:5px; }
+.action-btn { display:flex; flex-direction:column; align-items:center; gap:2px; padding:7px 4px; background:rgba(255,255,255,.65); border:1px solid rgba(255,255,255,.8); border-radius:10px; cursor:pointer; font-family:inherit; font-size:10px; font-weight:600; color:#444; transition:all .15s ease; position:relative; }
+.action-btn:hover:not(:disabled) { background:rgba(255,255,255,.9); transform:translateY(-1px); box-shadow:0 3px 8px rgba(0,0,0,.12); }
+.action-btn:active:not(:disabled) { transform:translateY(0); }
+.action-btn:disabled { opacity:.55; cursor:not-allowed; }
+.btn-icon { font-size:22px; line-height:1; }
+.btn-cd { font-size:9px; color:#999; min-height:12px; }
+hr.divider { border:none; border-top:1px solid rgba(255,255,255,.25); margin:0; }
+.points-row { display:flex; align-items:center; justify-content:space-between; }
+.points-display { font-size:15px; font-weight:800; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.3); }
+.type-label { font-size:10px; background:rgba(255,255,255,.4); border-radius:8px; padding:2px 8px; color:#333; }
+.shop-grid { display:flex; gap:5px; }
+.shop-btn { flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 3px; background:rgba(255,255,255,.65); border:2px solid rgba(255,255,255,.7); border-radius:10px; cursor:pointer; font-family:inherit; font-size:9px; font-weight:600; color:#444; transition:all .15s ease; }
+.shop-btn:hover:not(:disabled) { background:rgba(255,255,255,.9); transform:translateY(-1px); }
+.shop-btn:disabled { opacity:.5; cursor:not-allowed; }
+.shop-btn.owned   { border-color:#4caf50; background:rgba(100,210,100,.3); }
+.shop-btn.equipped { border-color:#ffc107; background:rgba(255,200,50,.35); }
+.shop-icon { font-size:20px; }
+.shop-cost { color:#888; }
+
+/* ═══════════════════════════════════════════
+   DOG CSS ART  ─  Base
+   ═══════════════════════════════════════════ */
+.pet {
+  position: relative; width:100px; height:115px;
+  transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+}
+
+/* Stage scaling via CSS variable so animations can reuse it */
+.pet { --sc: 1; transform: scale(var(--sc)); }
+.pet.stage-0 { --sc: .50; }
+.pet.stage-1 { --sc: .66; }
+.pet.stage-2 { --sc: .82; }
+.pet.stage-3 { --sc: 1.0; }
+.pet.stage-4 { --sc: .97; }
+
+/* Elder: desaturated aged look */
+.pet.stage-4 { filter: saturate(.72) brightness(.93); }
+
+/* Base parts */
+.dog-ear {
+  position: absolute;
+  width: 28px; height: 36px;
+  background: #B07850;
+  border-radius: 50% 50% 55% 55% / 40% 40% 60% 60%;
+  top: 14px; z-index: 0;
+  transition: all .3s ease;
+}
+.dog-ear-l { left:4px;  transform:rotate(-18deg); }
+.dog-ear-r { right:4px; transform:rotate(18deg); }
+.dog-ear::after { content:''; position:absolute; top:6px; left:50%; transform:translateX(-50%); width:14px; height:20px; background:rgba(255,160,130,.4); border-radius:50%; }
+
+.dog-body {
+  position: absolute; bottom:16px; left:50%; transform:translateX(-50%);
+  width:80px; height:90px;
+  background: #C8956C;
+  border-radius: 42% 42% 36% 36% / 52% 52% 40% 40%;
+  z-index: 1; transition: all .3s ease;
+  animation: breathe 3s ease-in-out infinite;
+}
+@keyframes breathe { 0%,100% { transform:translateX(-50%) scaleY(1); } 50% { transform:translateX(-50%) scaleY(1.03); } }
+
+.dog-eye-row { position:absolute; top:24px; left:50%; transform:translateX(-50%); display:flex; gap:16px; }
+.dog-eye { width:13px; height:14px; background:#1a1212; border-radius:50%; position:relative; transition:all .3s ease; }
+.dog-eye::after { content:''; position:absolute; top:2px; right:2px; width:4px; height:4px; background:#fff; border-radius:50%; }
+
+.dog-cheeks { position:absolute; top:34px; left:50%; transform:translateX(-50%); display:flex; gap:30px; }
+.dog-cheek { width:14px; height:8px; background:rgba(255,130,110,.4); border-radius:50%; }
+
+.dog-snout { position:absolute; top:42px; left:50%; transform:translateX(-50%); width:28px; height:22px; background:#E0A888; border-radius:50% 50% 48% 48% / 55% 55% 45% 45%; display:flex; flex-direction:column; align-items:center; gap:2px; padding-top:4px; }
+.dog-nose { width:14px; height:8px; background:#2a1010; border-radius:50% 50% 46% 46%; }
+.dog-mouth { width:18px; height:7px; border-bottom:2.5px solid #9B6645; border-radius:0 0 50% 50%; }
+
+.dog-paws { position:absolute; bottom:12px; left:50%; transform:translateX(-50%); display:flex; gap:22px; z-index:2; }
+.dog-paw { width:18px; height:13px; background:#C8956C; border-radius:50%; position:relative; }
+.dog-paw::before { content:''; position:absolute; bottom:-2px; left:50%; transform:translateX(-50%); width:20px; height:5px; background:inherit; border-radius:50%; box-shadow:-7px 0 0 0 #B07850, 7px 0 0 0 #B07850; }
+
+.dog-tail { position:absolute; right:2px; bottom:28px; width:20px; height:30px; background:#B07850; border-radius:80% 20% 20% 80% / 50% 50% 30% 30%; transform:rotate(22deg); z-index:0; transform-origin:bottom left; }
+
+.dog-spot { position:absolute; background:#8B5C3A; border-radius:50%; opacity:.35; }
+.dog-spot-1 { width:22px; height:16px; top:18px; right:10px; transform:rotate(-12deg); }
+.dog-spot-2 { width:14px; height:10px; top:40px; left:8px; transform:rotate(10deg); }
+
+.dog-acc { position:absolute; bottom:8px; right:-4px; font-size:16px; z-index:5; }
+.dog-hat        { position:absolute; top:-8px; left:50%; transform:translateX(-50%); font-size:22px; z-index:5; display:none; }
+.dog-scarf      { position:absolute; top:62px; left:50%; transform:translateX(-50%); font-size:18px; z-index:5; display:none; }
+.dog-sunglasses { position:absolute; top:20px; left:50%; transform:translateX(-50%); font-size:18px; z-index:5; display:none; }
+.zzz { position:absolute; top:-14px; right:2px; font-size:16px; z-index:6; display:none; }
+
+.has-hat .dog-hat           { display:block; }
+.has-scarf .dog-scarf       { display:block; }
+.has-sunglasses .dog-sunglasses { display:block; }
+.zzz.visible { display:block; animation:floatUp 2s ease-in-out infinite; }
+@keyframes floatUp { 0% { transform:translateY(0) scale(1); opacity:1; } 100% { transform:translateY(-20px) scale(.6); opacity:0; } }
+
+/* Mood */
+.mood-happy .dog-mouth { width:22px; height:10px; border-bottom:3px solid #9B6645; border-radius:0 0 50% 50%; }
+.mood-happy .dog-eye { height:10px; border-radius:50% 50% 48% 48%; }
+.mood-sad .dog-mouth { top:4px; border-bottom:none; border-top:2.5px solid #9B6645; border-radius:50% 50% 0 0; }
+.mood-sad .dog-eye { border-radius:48% 48% 50% 50%; }
+
+/* Bounce — uses --sc so scale is preserved */
+@keyframes bounce { 0%,100% { transform:scale(var(--sc,1)); } 50% { transform:scale(calc(var(--sc,1)*1.08)) translateY(-5px); } }
+.pet.mood-happy { animation: bounce 1.2s ease-in-out infinite; }
+@keyframes actionPop { 0% { transform:scale(var(--sc,1)); } 35% { transform:scale(calc(var(--sc,1)*1.18)) translateY(-5px); } 100% { transform:scale(var(--sc,1)); } }
+
+/* ── Type: グルメ ── */
+.type-gourmet .dog-body { width:92px; height:98px; border-radius:50% 50% 46% 46% / 55% 55% 42% 42%; background:#D4A06C; }
+.type-gourmet .dog-ear  { background:#C08050; width:26px; height:32px; border-radius:50%; }
+.type-gourmet .dog-cheek { width:18px; height:11px; background:rgba(255,100,90,.5); }
+.type-gourmet .dog-snout { width:32px; height:26px; background:#E8B898; top:44px; }
+.type-gourmet .dog-nose  { width:16px; height:10px; }
+.type-gourmet .dog-paw   { width:22px; height:15px; }
+.type-gourmet .dog-eye   { width:12px; height:11px; border-radius:50% 50% 48% 48%; }
+.type-gourmet .dog-body::after { content:''; position:absolute; bottom:10px; left:50%; transform:translateX(-50%); width:52px; height:34px; background:rgba(245,210,180,.5); border-radius:50%; }
+
+/* ── Type: アスリート ── */
+.type-athlete .dog-body  { width:76px; height:94px; border-radius:36% 36% 30% 30% / 48% 48% 36% 36%; background:#BF7A2A; }
+.type-athlete .dog-ear   { background:#A06020; width:24px; height:28px; border-radius:30% 70% 50% 50% / 30% 30% 50% 50%; top:8px; }
+.type-athlete .dog-ear-l { transform:rotate(-5deg); }
+.type-athlete .dog-ear-r { transform:rotate(5deg); }
+.type-athlete .dog-eye   { width:14px; height:15px; }
+.type-athlete .dog-cheek { width:10px; height:6px; background:rgba(200,100,60,.35); }
+.type-athlete .dog-body::before { content:''; position:absolute; top:20px; left:50%; transform:translateX(-50%); width:36px; height:44px; background:rgba(210,150,60,.3); border-radius:50%; }
+.type-athlete .dog-tail  { transform:rotate(-20deg); background:#9A6020; height:24px; right:0; }
+
+/* ── Type: ワイルド ── */
+.type-wild .dog-body { background:#7A6848; border-radius:40% 40% 35% 35%; box-shadow:-7px -5px 0 3px #6A5838,7px -7px 0 3px #6A5838,-9px 3px 0 3px #6A5838,9px 3px 0 3px #6A5838,0px -9px 0 3px #6A5838; }
+.type-wild .dog-ear-l { transform:rotate(-35deg); width:30px; background:#6A5838; left:2px; }
+.type-wild .dog-ear-r { transform:rotate(5deg); width:20px; height:26px; background:#6A5838; }
+.type-wild .dog-eye   { width:15px; height:16px; }
+.type-wild .dog-cheek { background:rgba(160,120,80,.3); }
+.type-wild .dog-snout { background:#C8A070; }
+.type-wild .dog-tail  { transform:rotate(-30deg); background:#6A5838; height:34px; }
+.type-wild .dog-spot-1, .type-wild .dog-spot-2 { opacity:.5; background:#5A4828; }
+
+/* ── Type: プア ── */
+.type-poor .dog-body { width:66px; height:78px; background:#B09888; border-radius:38% 38% 34% 34%; }
+.type-poor .dog-ear  { height:48px; background:#9A8878; border-radius:40% 40% 52% 52% / 38% 38% 62% 62%; }
+.type-poor .dog-ear-l { transform:rotate(10deg); left:8px; }
+.type-poor .dog-ear-r { transform:rotate(-10deg); right:8px; }
+.type-poor .dog-eye  { width:11px; height:10px; }
+.type-poor .dog-eye::before { content:''; position:absolute; top:-4px; left:0; right:0; height:3px; background:#9A8878; border-radius:2px; transform:rotate(-12deg); }
+.type-poor .dog-cheek { background:rgba(160,130,110,.25); width:10px; height:6px; }
+.type-poor .dog-snout { background:#C8B0A0; width:24px; height:18px; }
+.type-poor .dog-tail  { background:#9A8878; height:22px; }
+.type-poor .dog-paw   { background:#B09888; }
+
+/* ════════════════════════════════════════════
+   STAGE SHAPE VARIANTS  (placed after type CSS
+   so face proportions override type for each age)
+   ════════════════════════════════════════════ */
+
+/* ── Stage 0: 赤ちゃん — round blob, huge baby eyes ── */
+.pet.stage-0 .dog-body  { border-radius:50% !important; width:86px !important; height:86px !important; bottom:20px; }
+.pet.stage-0 .dog-ear   { width:18px !important; height:20px !important; border-radius:50% !important; top:22px; }
+.pet.stage-0 .dog-ear-l { transform:rotate(-8deg) !important; left:8px !important; }
+.pet.stage-0 .dog-ear-r { transform:rotate(8deg)  !important; right:8px !important; }
+.pet.stage-0 .dog-eye   { width:17px !important; height:18px !important; }
+.pet.stage-0 .dog-snout { width:20px !important; height:16px !important; top:50px; }
+.pet.stage-0 .dog-nose  { width:11px !important; height:7px !important; }
+.pet.stage-0 .dog-tail  { width:10px !important; height:12px !important; bottom:24px; right:4px; }
+.pet.stage-0 .dog-paw   { width:13px !important; height:9px !important; }
+.pet.stage-0 .dog-spot-1, .pet.stage-0 .dog-spot-2 { opacity:0 !important; }
+/* baby cheeks always pink */
+.pet.stage-0 .dog-cheek { width:16px !important; height:10px !important; background:rgba(255,120,100,.5) !important; }
+
+/* ── Stage 1: 子犬 — still round, growing ears ── */
+.pet.stage-1 .dog-body { border-radius:46% 46% 40% 40% / 54% 54% 42% 42% !important; width:83px !important; height:88px !important; }
+.pet.stage-1 .dog-ear  { width:24px !important; height:30px !important; top:16px; }
+.pet.stage-1 .dog-eye  { width:15px !important; height:16px !important; }
+.pet.stage-1 .dog-snout { width:25px !important; height:20px !important; }
+.pet.stage-1 .dog-cheek { width:15px !important; height:9px !important; }
+
+/* ── Stage 2: 若犬 — default proportions (no overrides needed) ── */
+
+/* ── Stage 3: 成犬 — strong adult, defined ears ── */
+.pet.stage-3 .dog-ear   { height:40px !important; width:30px !important; }
+.pet.stage-3 .dog-body  { width:83px !important; height:94px !important; }
+
+/* ── Stage 4: 老犬 — heavy droopy ears, squinting eyes, grey spots ── */
+.pet.stage-4 .dog-ear   { height:44px !important; width:32px !important; }
+.pet.stage-4 .dog-ear-l { transform:rotate(-22deg) !important; }
+.pet.stage-4 .dog-ear-r { transform:rotate(22deg)  !important; }
+.pet.stage-4 .dog-eye   { width:10px !important; height:9px !important; border-radius:50% !important; }
+.pet.stage-4 .dog-spot-1 { opacity:.55 !important; width:28px !important; height:18px !important; }
+.pet.stage-4 .dog-spot-2 { opacity:.5  !important; width:18px !important; height:12px !important; }
+/* old dog — add white beard-ish chin line */
+.pet.stage-4 .dog-snout::after { content:''; position:absolute; bottom:-4px; left:50%; transform:translateX(-50%); width:20px; height:7px; background:rgba(240,230,220,.6); border-radius:50%; }
+
+/* ═══════════════════════════════════════════
+   TOAST
+   ═══════════════════════════════════════════ */
+.toast-container { position:fixed; top:12px; left:50%; transform:translateX(-50%); z-index:100; display:flex; flex-direction:column; gap:4px; pointer-events:none; }
+.toast { background:rgba(30,30,30,.82); color:#fff; font-size:12px; font-weight:600; padding:6px 16px; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,.3); animation:toastIn .3s ease-out; }
+@keyframes toastIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+
+/* ═══════════════════════════════════════════
+   NEW GAME BUTTON
+   ═══════════════════════════════════════════ */
+.new-game-btn {
+  width: 100%; padding: 8px 0;
+  background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.4);
+  border-radius: 10px; color: #fff; font-family: inherit;
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  transition: background .15s ease;
+  text-shadow: 0 1px 3px rgba(0,0,0,.3);
+}
+.new-game-btn:hover { background: rgba(255,255,255,.32); }
+
+/* ─── History button in album panel ─── */
+.history-btn {
+  width: 100%; padding: 6px 0;
+  background: rgba(255,255,255,.22); border: 1px solid rgba(255,255,255,.4);
+  border-radius: 8px; color: #fff; font-family: inherit;
+  font-size: 11px; font-weight: 700; cursor: pointer;
+  transition: background .15s ease;
+  text-shadow: 0 1px 2px rgba(0,0,0,.3);
+  flex-shrink: 0;
+}
+.history-btn:hover { background: rgba(255,255,255,.38); }
+
+/* ═══════════════════════════════════════════
+   HISTORY MODAL
+   ═══════════════════════════════════════════ */
+.history-modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,.65); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  animation: modalFadeIn .2s ease-out;
+}
+.history-modal-overlay.closing { animation: modalFadeOut .2s ease-in forwards; }
+
+.history-modal {
+  background: rgba(30,25,40,.96); backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 18px; padding: 18px;
+  display: flex; flex-direction: column; gap: 14px;
+  box-shadow: 0 24px 64px rgba(0,0,0,.55);
+  width: min(560px, 95vw);
+  animation: modalPopIn .25s cubic-bezier(.34,1.56,.64,1);
+}
+.history-modal.closing { animation: modalPopOut .2s ease-in forwards; }
+
+.hist-header {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.hist-title { font-size: 15px; font-weight: 800; color: #fff; }
+.hist-close-btn {
+  background: rgba(255,255,255,.12); border: none; border-radius: 50%;
+  width: 28px; height: 28px; font-size: 13px; font-weight: 700;
+  color: #ccc; cursor: pointer; font-family: inherit;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.hist-close-btn:hover { background: rgba(255,255,255,.25); color: #fff; }
+
+/* 全ゲーム一覧 */
+.hist-all-games { display: flex; flex-direction: column; gap: 10px; }
+
+.hist-game-row { display: flex; flex-direction: column; gap: 4px; }
+
+.hist-game-header {
+  display: flex; align-items: baseline; gap: 8px;
+}
+.hist-game-num    { font-size: 11px; font-weight: 800; color: #fff; }
+.hist-game-detail { font-size: 10px; color: rgba(255,255,255,.55); }
+
+/* 写真ストリップ — scale(0.5) で縮小表示 */
+/* photo-card は 200px×117px → scale(0.5) で視覚上 100px×58.5px */
+.hist-photos {
+  display: flex; flex-wrap: nowrap; gap: 6px; align-items: flex-start;
+}
+.hist-photo-wrap {
+  width: 100px; height: 59px;
+  overflow: hidden; flex-shrink: 0; cursor: pointer;
+  border-radius: 3px;
+  transition: opacity .15s, transform .15s;
+}
+.hist-photo-wrap .photo-card {
+  transform: scale(0.5) !important;
+  transform-origin: top left;
+  margin: 0;
+  transition: box-shadow .15s ease;
+}
+.hist-photo-wrap:hover { transform: scale(1.06); }
+.hist-empty { color: rgba(255,255,255,.5); font-size: 11px; }
+
+/* ═══════════════════════════════════════════
+   PHOTO CARD — clickable
+   ═══════════════════════════════════════════ */
+.photo-card { cursor: pointer; }
+.photo-card:active { transform: rotate(0deg) scale(0.97) !important; }
+
+/* ═══════════════════════════════════════════
+   MEMORY MODAL
+   ═══════════════════════════════════════════ */
+.memory-modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,.65); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  animation: modalFadeIn .2s ease-out;
+}
+.memory-modal-overlay.closing { animation: modalFadeOut .2s ease-in forwards; }
+@keyframes modalFadeIn  { from { opacity:0; } to { opacity:1; } }
+@keyframes modalFadeOut { from { opacity:1; } to { opacity:0; } }
+
+.memory-modal {
+  background: #fff; border-radius: 16px;
+  padding: 18px 18px 24px;
+  box-shadow: 0 24px 64px rgba(0,0,0,.45);
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  animation: modalPopIn .25s cubic-bezier(.34,1.56,.64,1);
+  max-width: 340px; width: 90%;
+}
+.memory-modal.closing { animation: modalPopOut .2s ease-in forwards; }
+@keyframes modalPopIn  { from { transform:scale(.7); opacity:0; } to { transform:scale(1); opacity:1; } }
+@keyframes modalPopOut { from { transform:scale(1); opacity:1; } to { transform:scale(.7); opacity:0; } }
+
+.modal-viewport {
+  width: 280px; height: 140px;
+  border-radius: 8px; overflow: hidden; position: relative;
+}
+.modal-viewport.season-spring { background: linear-gradient(180deg,#a0d8f0,#c4eaa0); }
+.modal-viewport.season-summer { background: linear-gradient(180deg,#4da6e8,#5cb85c); }
+.modal-viewport.season-autumn { background: linear-gradient(180deg,#e09040,#c89030); }
+.modal-viewport.season-winter { background: linear-gradient(180deg,#b0c8e0,#d8e8f6); }
+.modal-viewport .photo-bg { position:absolute; inset:0; }
+.modal-viewport .photo-sun { position:absolute; top:8px; right:16px; width:22px; height:22px; border-radius:50%; }
+.modal-viewport.season-spring .photo-sun { background:#ffe066; box-shadow:0 0 8px #ffd740; }
+.modal-viewport.season-summer .photo-sun { background:#ffd600; box-shadow:0 0 12px #ffd600; width:28px; height:28px; }
+.modal-viewport.season-autumn .photo-sun { background:#ff9800; }
+.modal-viewport.season-winter .photo-sun { background:#c8d8e8; }
+.modal-viewport .photo-cloud { position:absolute; top:12px; left:12px; width:40px; height:14px; border-radius:8px; background:rgba(255,255,255,.82); }
+.modal-viewport .photo-cloud::before { content:''; position:absolute; top:-9px; left:8px; width:22px; height:20px; background:rgba(255,255,255,.82); border-radius:50%; }
+.modal-viewport.season-winter .photo-cloud,
+.modal-viewport.season-winter .photo-cloud::before { background:rgba(210,225,240,.85); }
+.modal-viewport .photo-tree { position:absolute; bottom:20px; }
+.modal-viewport .photo-tree-l { left:8px; }
+.modal-viewport .photo-tree-r { right:8px; }
+.modal-viewport .photo-tree::before { content:''; position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:6px; height:18px; background:#7a5230; border-radius:2px; }
+.modal-viewport .photo-tree::after  { content:''; position:absolute; bottom:14px; left:50%; transform:translateX(-50%); width:28px; height:30px; border-radius:50% 50% 42% 42%; }
+.modal-viewport.season-spring .photo-tree::after { background:#88cc66; }
+.modal-viewport.season-summer .photo-tree::after { background:#2e8b2e; }
+.modal-viewport.season-autumn .photo-tree::after { background:#cc5500; }
+.modal-viewport.season-winter .photo-tree::after { background:#a8b8c8; }
+.modal-viewport .photo-ground { position:absolute; bottom:0; left:0; right:0; height:22px; border-radius:3px 3px 0 0; }
+.modal-viewport.season-spring .photo-ground { background:#7ac55a; }
+.modal-viewport.season-summer .photo-ground { background:#449930; }
+.modal-viewport.season-autumn .photo-ground { background:#b88030; }
+.modal-viewport.season-winter .photo-ground { background:#d0e0f0; }
+.modal-dog-wrap { position:absolute; top:0; left:0; width:560px; height:280px; transform:scale(0.5); transform-origin:top left; display:flex; align-items:center; justify-content:center; pointer-events:none; z-index:2; }
+.modal-dog-wrap .pet { transform: none !important; }
+
+.modal-gift-sticker { position:absolute; bottom:36px; right:8px; font-size:20px; z-index:5; }
+
+.modal-info { text-align: center; }
+.modal-stage { font-size:18px; font-weight:800; color:#444; }
+.modal-meta  { font-size:13px; color:#888; margin-top:4px; }
+.modal-happiness { font-size:22px; font-weight:900; color:#e040a8; margin-top:6px; }
+.modal-nav { display:flex; gap:12px; }
+.modal-nav-btn {
+  background: rgba(0,0,0,.08); border: none; border-radius: 20px;
+  padding: 6px 20px; font-size:13px; font-weight:700; cursor:pointer;
+  font-family: inherit; color:#555;
+  transition: background .15s ease;
+}
+.modal-nav-btn:hover { background: rgba(0,0,0,.16); }
+.modal-close-btn {
+  background: #e040a8; color:#fff; border:none; border-radius:20px;
+  padding: 7px 28px; font-size:14px; font-weight:700; cursor:pointer;
+  font-family:inherit; transition: background .15s ease;
+}
+.modal-close-btn:hover { background:#c2185b; }
+
+</style>
+</head>
+<body>
+
+<!-- Garden Background -->
+<div class="garden" id="garden">
+  <div class="g-sun"></div>
+  <div class="g-cloud g-cloud-1"></div>
+  <div class="g-cloud g-cloud-2"></div>
+  <div class="g-cloud g-cloud-3"></div>
+  <div class="g-tree g-tree-1"></div>
+  <div class="g-tree g-tree-2"></div>
+  <div class="g-tree g-tree-3"></div>
+  <div class="g-tree g-tree-4"></div>
+  <div class="g-ground"></div>
+  <div class="g-flower-row" id="g-flower-row"></div>
+  <div class="g-particles" id="g-particles"></div>
+  <div class="g-season-label" id="g-season-label"></div>
+</div>
+
+<!-- Title Bar -->
+<div class="title-bar">
+  <div class="game-title">🐾 いぬそだて</div>
+  <button class="pause-btn" id="pause-btn">⏸ 一時停止</button>
+</div>
+
+<!-- Layout -->
+<div class="layout">
+
+  <!-- Left: Photo Album -->
+  <div class="album-panel">
+    <div class="album-title">📸 おもいでアルバム</div>
+    <div class="photo-strip" id="photo-strip">
+      <div class="album-hint">ハッピーな瞬間が<br>自動で撮影されるよ♪</div>
+    </div>
+    <button class="history-btn" id="history-btn">📚 過去のゲームを振り返る</button>
+  </div>
+
+  <!-- Center: Pet -->
+  <div class="game-panel">
+    <div class="game-card" id="game-card">
+      <div class="season-badge" id="season-badge">🌸 春</div>
+      <div class="pet-area">
+        <div class="pet stage-0 type-unknown mood-neutral" id="pet">
+          <div class="dog-ear dog-ear-l"></div>
+          <div class="dog-ear dog-ear-r"></div>
+          <div class="dog-body">
+            <div class="dog-eye-row">
+              <div class="dog-eye"></div>
+              <div class="dog-eye"></div>
+            </div>
+            <div class="dog-cheeks">
+              <div class="dog-cheek"></div>
+              <div class="dog-cheek"></div>
+            </div>
+            <div class="dog-snout">
+              <div class="dog-nose"></div>
+              <div class="dog-mouth"></div>
+            </div>
+          </div>
+          <div class="dog-paws">
+            <div class="dog-paw"></div>
+            <div class="dog-paw"></div>
+          </div>
+          <div class="dog-tail"></div>
+          <div class="dog-spot dog-spot-1"></div>
+          <div class="dog-spot dog-spot-2"></div>
+          <div class="dog-acc" id="dog-acc">🐾</div>
+          <div class="dog-hat"        id="d-hat">🎩</div>
+          <div class="dog-scarf"      id="d-scarf">🧣</div>
+          <div class="dog-sunglasses" id="d-sg">🕶️</div>
+          <div class="zzz" id="d-zzz">💤</div>
+        </div>
+      </div>
+      <div class="pet-name-row">
+        <div class="pet-name" id="pet-name">ぽち</div>
+        <div class="pet-stage-badge" id="pet-stage">🐾 赤ちゃん犬</div>
+        <div class="day-info" id="day-info">1日目</div>
+      </div>
+      <div class="hearts" id="hearts">🤍🤍🤍🤍🤍</div>
+    </div>
+  </div>
+
+  <!-- Right: Controls -->
+  <div class="controls-panel">
+    <div class="points-row">
+      <div class="points-display">⭐ <span id="points-val">0</span></div>
+      <div class="type-label" id="type-label">???</div>
+    </div>
+
+    <hr class="divider">
+    <div class="section-title">ステータス</div>
+
+    <div class="stat-row">
+      <span class="stat-label">🍖 食事</span>
+      <div class="stat-bar"><div class="stat-fill s-hunger" id="s-hunger" style="width:70%"></div></div>
+      <span class="stat-val" id="v-hunger">70</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">😊 幸福</span>
+      <div class="stat-bar"><div class="stat-fill s-happy" id="s-happy" style="width:70%"></div></div>
+      <span class="stat-val" id="v-happy">70</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">🛁 清潔</span>
+      <div class="stat-bar"><div class="stat-fill s-clean" id="s-clean" style="width:70%"></div></div>
+      <span class="stat-val" id="v-clean">70</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">💤 体力</span>
+      <div class="stat-bar"><div class="stat-fill s-energy" id="s-energy" style="width:70%"></div></div>
+      <span class="stat-val" id="v-energy">70</span>
+    </div>
+
+    <hr class="divider">
+    <div class="section-title">アクション</div>
+    <div class="actions-grid">
+      <button class="action-btn" id="btn-feed">
+        <span class="btn-icon">🍖</span>
+        <span>食べる</span>
+        <span class="btn-cd" id="cd-feed"></span>
+      </button>
+      <button class="action-btn" id="btn-play">
+        <span class="btn-icon">🎾</span>
+        <span>遊ぶ</span>
+        <span class="btn-cd" id="cd-play"></span>
+      </button>
+      <button class="action-btn" id="btn-bath">
+        <span class="btn-icon">🛁</span>
+        <span>お風呂</span>
+        <span class="btn-cd" id="cd-bath"></span>
+      </button>
+      <button class="action-btn" id="btn-sleep">
+        <span class="btn-icon">💤</span>
+        <span>眠る</span>
+        <span class="btn-cd" id="cd-sleep"></span>
+      </button>
+    </div>
+
+    <hr class="divider">
+    <div class="section-title">ショップ</div>
+    <div class="shop-grid">
+      <button class="shop-btn" id="shop-hat">
+        <span class="shop-icon">🎩</span>
+        <span>帽子</span>
+        <span class="shop-cost" id="sc-hat">50pt</span>
+      </button>
+      <button class="shop-btn" id="shop-scarf">
+        <span class="shop-icon">🧣</span>
+        <span>マフラー</span>
+        <span class="shop-cost" id="sc-scarf">80pt</span>
+      </button>
+      <button class="shop-btn" id="shop-sg">
+        <span class="shop-icon">🕶️</span>
+        <span>サングラス</span>
+        <span class="shop-cost" id="sc-sg">120pt</span>
+      </button>
+    </div>
+
+    <hr class="divider">
+    <button class="new-game-btn" id="new-game-btn">🔄 新しいゲームを始める</button>
+  </div>
+
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+<script src="main.js"></script>
+</body>
+</html>
